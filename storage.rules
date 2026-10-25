@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /shield-analysis/{userId}/{fileName} {
+      allow read: if false;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.size > 0
+        && request.resource.size <= 157286400
+        && request.resource.contentType.matches('image/.*|video/.*');
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

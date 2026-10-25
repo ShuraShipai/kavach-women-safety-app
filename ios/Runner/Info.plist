@@ -28,6 +28,8 @@
 	<string>Location can be shared with your trusted contacts when you choose to use a safety feature.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access lets you capture a photo when you choose to add evidence.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo access lets you choose an image for an optional safety review.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access lets you record audio when you choose to add evidence.</string>
 	<key>LSRequiresIPhoneOS</key>

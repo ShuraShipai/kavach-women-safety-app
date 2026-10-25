@@ -43,3 +43,9 @@
 - The onboarding permissions page now uses the `permission_handler` adapter to request location while in use, microphone, camera, and notifications, report outcomes, and open app settings for permanently denied permissions. The app can continue if the user declines optional access. Platform descriptions and Android declarations are present. Pub dependency resolution and device verification remain pending in the current workspace.
 
 Phone authentication and Firestore app reads/writes still need device-level verification. The Firestore rules were compiled by Firebase and deployed, but were not emulator-tested. Continue with SOS delivery after selecting an SMS provider, then build consent-based location and test on devices.
+
+### Vault implementation update (2026-10-25)
+
+The Vault has local cases and notes persisted through platform secure storage, encrypted image evidence saved from Shield, 60-second audio/video capture with review-before-save, AES-GCM encrypted media files, device timestamps, SHA-256 hashes, a recordings list, deletion, and multi-page PDF generation/share. SOS-triggered evidence, location capture, and retention controls remain unimplemented. Flutter analysis and the architecture checker pass; capture, image-save, and PDF flows have not been exercised on a target device.
+
+Screens 14–22 from `kavach-design/all_screens.html` have app routes for Vault, timeline, export preview, recordings, Shield, message input/progress/result, and image/video selection, consent, and result. Message analysis is not connected; message Save to Vault stores the pasted text locally. Image/video analysis is wired to a Firebase callable function source and Resemble; deploy Functions/Storage and configure `RESEMBLE_API_KEY` before live analysis. Images can be encrypted and saved to an Image review case.

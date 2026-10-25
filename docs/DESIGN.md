@@ -71,6 +71,8 @@ Flutter tokens for these roles live in `lib/core/design_system/tokens/app_typogr
 
 The 50 screens are inventoried in `SCREEN_FLOW_AUDIT.md`: Splash, Welcome, authentication/onboarding, Home/Trusted Circle, SOS, Vault, Shield, Journey Guardian, Safety Map, Help, Settings, Offline Kit, Privacy Centre, Readiness/Response Plan, Safe Test, SOS status, trusted-contact response, Fake Call, and Safety Mode/recordings. The deck also has 15 reusable popup/sheet examples. Their presence is visual reference only.
 
+Screens 14–22 now have app routes for the Vault list, incident timeline with delete actions, export preview, recordings list with capture/review, Shield landing page, message input/progress/result, and image/video selection with consent and analysis results. Audio/video recordings and explicitly saved images are encrypted locally and deletable. Image/video analysis requires deploying the Firebase backend and configuring its Resemble secret before it is live.
+
 Assets in the sibling design folder:
 
 | Asset | Verified details | Reference/use |

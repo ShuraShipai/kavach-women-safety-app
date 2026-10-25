@@ -33,7 +33,7 @@ This is a proposed implementation scope based on the core journeys in the deck, 
 ### Later, only after feasibility and product review
 
 - Trusted-contact acknowledgement/response view and richer status history.
-- Vault incident timeline, evidence capture/import, export, retention, and deletion.
+- Vault media capture/import, SOS automation, location capture, export sharing, retention, and deletion remain later work; see the implemented note-only scope below.
 - Shield message/image guidance or analysis; results must be framed as estimates, not proof or legal advice.
 - Journey Guardian, background arrival detection, voice phrase trigger, and battery handoff. These concepts need platform feasibility, consent, battery, and reliability review.
 - Safety Map, community reports, and nearby police stations. Reports need moderation and station data must be verified and maintained.
@@ -52,7 +52,7 @@ Screen numbering below follows the current static deck and [`SCREEN_FLOW_AUDIT.m
 | Home and Trusted Circle | 9 Home → 10 Trusted Circle → 11 Contact options. Add/edit/remove, duplicate checks, and test-alert preview are component states. Offline, no-contact, and location-disabled conditions appear on Home. |
 | SOS | 9 Home → 12 Countdown → 13 PIN cancellation or alert review → 38 Alert status. Status distinguishes sent, delivery confirmed, acknowledged, and responding. 39 is a trusted-contact response view. |
 | Vault | 14 Vault → add-evidence sheet → 15 Case timeline → 16 Export preview. Capture, permission, save, and export outcomes are component states. |
-| Digital safety | 17 Shield → 18 Analyze message → 19 Analyzing → 20 Result; image path 17 → 21 Check image → 22 Image result. Analysis is illustrative. |
+| Digital safety | 17 Shield → 18 Analyze message → 19 Analyzing → 20 Result; image/video path 17 → 21 Choose media → 22 Consent, analysis, and result. Message analysis remains illustrative. |
 | Journey Guardian | 9 Home → 23 Start Journey → optional Guardian → 24 Automatic Monitoring, with arrival/delay states. It is explicitly a concept with possible location pauses and platform limits. |
 | Map and reporting | 9 Home → 25 Safety Map → marker detail or 26 Report a spot. Reports are unverified; the shown station marker is demo-only. |
 | Help and settings | 27 Help → call handoff or 34 Guided Help. 28 Settings leads to 29 Voice phrase trigger, 30 device recovery, 31 calculator, 32 Offline Kit, and 33 Privacy Centre. |
@@ -80,3 +80,16 @@ Screen numbering below follows the current static deck and [`SCREEN_FLOW_AUDIT.m
 ## Success and release gates
 
 Before release, validate core flows on target devices, including accessibility, denied permissions, no network/location, cancellation, and ambiguous delivery. Agree on privacy/data-retention policy, legal review, service ownership, and support coverage. No success metrics or operational guarantees are established by the static design materials.
+
+## Evidence Vault implementation boundary
+
+- Cases and text notes are stored locally in platform secure storage. A note records device time and a SHA-256 hash of its text.
+- Audio and video can be captured for up to 60 seconds, reviewed, and saved as AES-GCM encrypted local files. Each recording stores a SHA-256 hash and device timestamp. Users can open/share recordings through the platform sheet and delete recordings with their case entry.
+- Notes can be deleted from a case timeline. A case can be generated as a multi-page PDF and handed to the platform share sheet; the report identifies notes and recordings with hashes and says location was not recorded.
+- Images selected in Shield can be explicitly saved as encrypted photo evidence with a hash and timestamp. SOS-triggered capture and location points are not implemented. SOS itself is not connected, so no automatic evidence capture is claimed. Recording, image-save, and PDF flows need device-level validation.
+
+## Shield implementation boundary
+
+- Screens 17–22 provide a Shield landing page, message input/progress/result, and image/video selection and analysis results. Image/video analysis uses a Firebase callable backend source that calls Resemble Detect and Intelligence with zero-retention requested; it is not live until Firebase Functions/Storage are deployed and `RESEMBLE_API_KEY` is configured as a Firebase secret. The app asks before upload and treats results as estimates.
+- If the user enables Save to Vault, the message is stored locally in a Shield message review case with a device timestamp and SHA-256 hash.
+- Images and videos can be selected for an on-device preview, then submitted only after consent. The detector can return an inconclusive estimate; it cannot establish that every possible edit is absent. Images can also be explicitly saved as encrypted Vault evidence.

@@ -112,6 +112,16 @@ class KavachBottomNavigation extends StatelessWidget {
       return;
     }
 
+    if (label == 'Vault') {
+      context.go('/vault');
+      return;
+    }
+
+    if (label == 'Shield') {
+      context.go('/shield');
+      return;
+    }
+
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(

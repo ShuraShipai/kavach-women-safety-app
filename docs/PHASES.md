@@ -28,3 +28,9 @@ The onboarding permission screen now requests while-in-use location, camera, mic
 Phases 1 and 2 are complete. The Flutter foundation and designed screens 1–10 are represented. Phone sign-in, profile persistence, secure PIN saving, and trusted-contact management are wired. Phone verification and Firestore app reads/writes still need device-level validation. Permissions, SOS delivery, and location remain prototypes. Runtime widget tests and target-device visual acceptance remain open.
 
 Continue remaining onboarding, permission, and SOS functionality only with reviewed contracts and honest service outcomes. Do not describe a prototype action as successful.
+
+### Evidence Vault progress (2026-10-25)
+
+The Vault route supports local cases and notes, encrypted photos saved from Shield, 60-second audio/video capture, review-before-save, AES-GCM encrypted media files, SHA-256 hashes, device timestamps, a saved-recordings list, evidence deletion, and multi-page PDF reports. Validate capture permissions, open/share handoff, encryption, and deletion on target devices before release. SOS automation, location capture, and retention controls remain unimplemented.
+
+Screens 14–22 are represented in the app: Vault list, case timeline, export preview, Shield home, message input/progress/result, and image/video selection, consent, and result. Image/video analysis is wired to a Firebase callable backend source using Resemble, but is not live until Functions/Storage are deployed and the API key secret is configured. An image can be saved encrypted from the result page. Static checks and Android debug build pass; no target-device run is recorded for these flows.
