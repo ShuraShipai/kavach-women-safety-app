@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:kavach/core/design_system/tokens/app_colors.dart';
 import 'package:kavach/core/design_system/widgets/kavach_reference_icon.dart';
+import 'package:kavach/features/onboarding/application/device_permission_provider.dart';
+import 'package:kavach/features/onboarding/domain/device_permission_repository.dart';
 import 'package:kavach/features/onboarding/presentation/permission_row.dart';
-import 'package:kavach/features/onboarding/presentation/onboarding_prototype_notice.dart';
 
-class PermissionsScreen extends StatelessWidget {
+class PermissionsScreen extends ConsumerWidget {
   const PermissionsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final permissionState = ref.watch(devicePermissionControllerProvider);
+    final permissionController = ref.read(
+      devicePermissionControllerProvider.notifier,
+    );
     final topInset = MediaQuery.paddingOf(context).top;
     final topSpacing = (52.0 - topInset).clamp(0.0, 52.0);
+    final statuses = permissionState.statuses;
 
     return Scaffold(
       backgroundColor: AppColors.warmCream,
@@ -60,7 +67,8 @@ class PermissionsScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Enable only the features you need.',
+                            'Choose what Kavach can access. You can continue '
+                            'without granting optional permissions.',
                             style: TextStyle(
                               fontSize: 15,
                               height: 1.35,
@@ -77,57 +85,95 @@ class PermissionsScreen extends StatelessWidget {
                           color: AppColors.surfaceWhite,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Column(
+                        child: Column(
                           children: [
                             PermissionRow(
                               icon: KavachIcon.location,
                               title: 'Location',
-                              detail:
-                                  'Shared only during an alert or Safe Walk',
+                              detail: 'For location sharing when available',
+                              status: devicePermissionStatusLabel(
+                                statuses[DevicePermission.location],
+                              ),
                             ),
                             PermissionRow(
                               icon: KavachIcon.microphone,
                               title: 'Microphone',
-                              detail: 'Record audio evidence',
+                              detail: 'For audio evidence when available',
+                              status: devicePermissionStatusLabel(
+                                statuses[DevicePermission.microphone],
+                              ),
                             ),
                             PermissionRow(
                               icon: KavachIcon.camera,
                               title: 'Camera',
-                              detail: 'Capture a photo on alert',
+                              detail: 'For photo evidence when available',
+                              status: devicePermissionStatusLabel(
+                                statuses[DevicePermission.camera],
+                              ),
                             ),
-                            PermissionRow(
+                            const PermissionRow(
                               icon: KavachIcon.message,
                               title: 'Phone and messaging actions',
-                              detail: 'Open a call or message when you choose',
+                              detail:
+                                  'Opens your phone app when you choose; '
+                                  'no permission needed',
                             ),
                             PermissionRow(
                               icon: KavachIcon.bell,
                               title: 'Notifications',
-                              detail: 'Optional Safe Journey delay prompts',
+                              detail:
+                                  'For optional journey alerts when available',
+                              status: devicePermissionStatusLabel(
+                                statuses[DevicePermission.notifications],
+                              ),
                               last: true,
                             ),
                           ],
                         ),
                       ),
                     ),
+                    if (permissionState.hasError)
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(24, 12, 24, 0),
+                        child: Text(
+                          'Some permission requests could not be completed. '
+                          'You can try again or continue.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.brandCrimson,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
+            if (permissionState.hasRequested &&
+                permissionState.hasPermanentlyDenied)
+              TextButton.icon(
+                onPressed: permissionController.openAppSettings,
+                icon: const Icon(Icons.settings_outlined),
+                label: const Text('Open app settings'),
+              ),
+            if (permissionState.hasRequested &&
+                !permissionState.allRequestedPermissionsGranted)
+              TextButton(
+                onPressed: () => context.go('/onboarding/profile'),
+                child: const Text('Continue without access'),
+              ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: FilledButton(
-                  onPressed: () => OnboardingPrototypeNotice.show(
-                    context: context,
-                    title: 'Permissions not requested',
-                    message:
-                        'This prototype does not request device permissions. None of the listed access has been granted.',
-                    continueLabel: 'Continue to profile',
-                    onContinue: () => context.go('/onboarding/profile'),
-                  ),
+                  onPressed: permissionState.isRequesting
+                      ? null
+                      : permissionState.hasRequested &&
+                            permissionState.allRequestedPermissionsGranted
+                      ? () => context.go('/onboarding/profile')
+                      : permissionController.requestOnboardingPermissions,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.brandCrimson,
                     foregroundColor: AppColors.surfaceWhite,
@@ -135,9 +181,18 @@ class PermissionsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                  child: Text(
+                    permissionState.isRequesting
+                        ? 'Requesting access…'
+                        : permissionState.hasRequested
+                        ? permissionState.allRequestedPermissionsGranted
+                              ? 'Continue to profile'
+                              : 'Request access again'
+                        : 'Allow access',
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),

@@ -1,10 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kavach/features/onboarding/domain/local_pin_repository.dart';
+
+final localPinRepositoryProvider = Provider<LocalPinRepository>(
+  (ref) => throw StateError('Secure PIN storage is not configured.'),
+);
 
 final pinEntryProvider = NotifierProvider<PinEntryController, PinEntryState>(
   PinEntryController.new,
 );
 
-enum PinEntryStage { create, confirm, complete }
+enum PinEntryStage { create, confirm, complete, saving, saved, saveFailed }
 
 class PinEntryState {
   const PinEntryState({
@@ -25,7 +30,10 @@ class PinEntryController extends Notifier<PinEntryState> {
   PinEntryState build() => const PinEntryState();
 
   void enterDigit(String digit) {
-    if (state.stage == PinEntryStage.complete || state.entry.length >= 4) {
+    if (state.stage == PinEntryStage.complete ||
+        state.stage == PinEntryStage.saving ||
+        state.stage == PinEntryStage.saved ||
+        state.entry.length >= 4) {
       return;
     }
 
@@ -60,12 +68,33 @@ class PinEntryController extends Notifier<PinEntryState> {
   }
 
   void eraseDigit() {
-    if (state.stage == PinEntryStage.complete || state.entry.isEmpty) return;
+    if (state.stage == PinEntryStage.complete ||
+        state.stage == PinEntryStage.saving ||
+        state.stage == PinEntryStage.saved ||
+        state.entry.isEmpty) {
+      return;
+    }
     state = PinEntryState(
       entry: state.entry.substring(0, state.entry.length - 1),
       firstPin: state.firstPin,
       stage: state.stage,
     );
+  }
+
+  Future<void> savePin() async {
+    final pin = state.firstPin;
+    if (pin == null ||
+        (state.stage != PinEntryStage.complete &&
+            state.stage != PinEntryStage.saveFailed)) {
+      return;
+    }
+    state = PinEntryState(firstPin: pin, stage: PinEntryStage.saving);
+    try {
+      await ref.read(localPinRepositoryProvider).savePin(pin);
+      state = const PinEntryState(stage: PinEntryStage.saved);
+    } on Object {
+      state = PinEntryState(firstPin: pin, stage: PinEntryStage.saveFailed);
+    }
   }
 
   void reset() => state = const PinEntryState();

@@ -32,4 +32,14 @@
 
 ## Next milestone
 
-Continue with the next consecutive artboards after Home (screen 10 Trusted Circle) only after checking the current milestone's analysis and architecture results. Enable runtime widget tests and simulator screenshot comparison in an environment where Flutter's test socket and CoreSimulator are available. Keep future UI-only flows explicit about actions that require integrations.
+### Firebase integration update (2026-10-25)
+
+- Firebase project `kavach-ac412` is registered for Android and iOS using the current `com.example.kavach` identifiers. FlutterFire generated `lib/firebase_options.dart`; Firebase Core is initialized from the app bootstrap. Android and iOS platform configuration files are present.
+- Phone sign-in calls Firebase Auth through an onboarding domain contract, Riverpod workflow, and infrastructure adapter. The screen collects consent before requesting an OTP and exposes retryable failure states. Actual phone verification is still pending Phone-provider enablement and device-level verification.
+- Profile display name and verified phone persistence, plus trusted-contact add/edit/remove, now have Firestore repositories. The default `asia-south1` database is created with deletion protection and the owner-only rules in `firestore.rules` compiled and deployed. No user records have been written. PINs are saved through Android Keystore/iOS Keychain using encrypted secure storage; Android app backup is disabled to avoid restoring an unusable key. SOS delivery and location are not configured. Home asks before handing off 112 to the phone app and reports only whether the dialer opened; target-device behavior is unverified.
+- `flutter analyze` reports no issues and `dart run tool/check_architecture.dart` passes with 49 Dart files scanned. Runtime tests were not run for this integration.
+- The owner reports Phone sign-in enabled; target-device verification remains pending. Continue with consent-based SOS review/delivery after selecting an SMS delivery provider, then add consent-based location and device tests.
+
+- The onboarding permissions page now uses the `permission_handler` adapter to request location while in use, microphone, camera, and notifications, report outcomes, and open app settings for permanently denied permissions. The app can continue if the user declines optional access. Platform descriptions and Android declarations are present. Pub dependency resolution and device verification remain pending in the current workspace.
+
+Phone authentication and Firestore app reads/writes still need device-level verification. The Firestore rules were compiled by Firebase and deployed, but were not emulator-tested. Continue with SOS delivery after selecting an SMS provider, then build consent-based location and test on devices.

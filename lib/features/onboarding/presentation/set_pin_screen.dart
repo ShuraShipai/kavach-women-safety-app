@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:kavach/core/design_system/tokens/app_colors.dart';
 import 'package:kavach/features/onboarding/application/pin_entry_controller.dart';
-import 'package:kavach/features/onboarding/presentation/onboarding_prototype_notice.dart';
 
 class SetPinScreen extends ConsumerWidget {
   const SetPinScreen({super.key});
@@ -23,18 +24,26 @@ class SetPinScreen extends ConsumerWidget {
       if (next.stage == PinEntryStage.complete &&
           previous?.stage != PinEntryStage.complete) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          OnboardingPrototypeNotice.show(
-            context: context,
-            title: 'PIN not saved',
-            message:
-                'PIN storage is not configured. No PIN has been saved on this device.',
-            continueLabel: 'Continue to contacts',
-            onContinue: () {
-              ref.read(pinEntryProvider.notifier).reset();
-              context.go('/onboarding/contact');
-            },
-          ).whenComplete(() => ref.read(pinEntryProvider.notifier).reset());
+          if (context.mounted) {
+            unawaited(ref.read(pinEntryProvider.notifier).savePin());
+          }
         });
+      }
+      if (next.stage == PinEntryStage.saved &&
+          previous?.stage != PinEntryStage.saved) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          ref.read(pinEntryProvider.notifier).reset();
+          context.go('/onboarding/contact');
+        });
+      }
+      if (next.stage == PinEntryStage.saveFailed &&
+          previous?.stage != PinEntryStage.saveFailed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not save your PIN securely. Try again.'),
+          ),
+        );
       }
     });
 
@@ -165,6 +174,18 @@ class SetPinScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    if (pinState.stage == PinEntryStage.saving)
+                      const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(),
+                      ),
+                    if (pinState.stage == PinEntryStage.saveFailed)
+                      TextButton(
+                        onPressed: () => unawaited(
+                          ref.read(pinEntryProvider.notifier).savePin(),
+                        ),
+                        child: const Text('Retry saving PIN'),
+                      ),
                   ],
                 ),
               ),

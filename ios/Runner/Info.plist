@@ -24,6 +24,12 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location can be shared with your trusted contacts when you choose to use a safety feature.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access lets you capture a photo when you choose to add evidence.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access lets you record audio when you choose to add evidence.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

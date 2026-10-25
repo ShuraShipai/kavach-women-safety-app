@@ -1,17 +1,19 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:kavach/core/design_system/tokens/app_colors.dart';
 import 'package:kavach/core/design_system/widgets/kavach_bottom_navigation.dart';
 import 'package:kavach/core/design_system/widgets/kavach_reference_icon.dart';
+import 'package:kavach/features/emergency_call/application/public/emergency_call_api.dart';
 
 /// Safety dashboard shown at the end of the onboarding flow.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final safeTopInset = MediaQuery.viewPaddingOf(context).top;
     final dashboardTopPadding = (60 - safeTopInset).clamp(0.0, 60.0);
 
@@ -30,7 +32,7 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     _header(context),
                     const SizedBox(height: 24),
-                    _emergencyCard(context),
+                    _emergencyCard(context, ref),
                     const SizedBox(height: 24),
                     _safetySection(context),
                     const SizedBox(height: 24),
@@ -94,7 +96,7 @@ class HomeScreen extends StatelessWidget {
     ],
   );
 
-  Widget _emergencyCard(BuildContext context) => Container(
+  Widget _emergencyCard(BuildContext context, WidgetRef ref) => Container(
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
       color: AppColors.brandCrimson,
@@ -189,7 +191,7 @@ class HomeScreen extends StatelessWidget {
         SizedBox(
           height: 48,
           child: OutlinedButton(
-            onPressed: () => _showCallUnavailable(context),
+            onPressed: () => _showCallConfirmation(context, ref),
             style: OutlinedButton.styleFrom(
               backgroundColor: Colors.white.withValues(alpha: 0.14),
               foregroundColor: AppColors.surfaceWhite,
@@ -564,19 +566,48 @@ class HomeScreen extends StatelessWidget {
     ),
   );
 
-  Future<void> _showCallUnavailable(BuildContext context) => showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Call handoff is not configured'),
-      content: const Text(
-        'This build cannot open the phone app. No call to 112 was placed.',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+  Future<void> _showCallConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Open emergency call options?'),
+        content: const Text(
+          'Kavach will open your phone app for India’s emergency number 112. '
+          'The phone app handles the call, and Kavach cannot confirm that it '
+          'connected.',
         ),
-      ],
-    ),
-  );
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Open phone app'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    var opened = false;
+    try {
+      opened = await ref.read(openEmergencyDialerProvider).call();
+    } on Object {
+      opened = false;
+    }
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          opened
+              ? 'Phone app opened. Complete the call there; Kavach cannot confirm connection.'
+              : 'Could not open the phone app. No call was placed.',
+        ),
+      ),
+    );
+  }
 }

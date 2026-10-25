@@ -1,0 +1,26 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "kavach-ac412",
+          "appId": "1:1054185197078:android:574955a930392c5c41af37",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "kavach-ac412",
+          "configurations": {
+            "android": "1:1054185197078:android:574955a930392c5c41af37",
+            "ios": "1:1054185197078:ios:11f750d59d863f5241af37"
+          }
+        }
+      }
+    }
+  }
+}

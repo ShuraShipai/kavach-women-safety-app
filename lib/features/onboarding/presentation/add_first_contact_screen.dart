@@ -73,14 +73,7 @@ class AddFirstContactScreen extends StatelessWidget {
                           width: double.infinity,
                           height: 50,
                           child: FilledButton(
-                            onPressed: () => OnboardingPrototypeNotice.show(
-                              context: context,
-                              title: 'Contact not added',
-                              message:
-                                  'Trusted contact storage is not configured. No contact has been added.',
-                              continueLabel: 'Continue without adding',
-                              onContinue: () => context.go('/home'),
-                            ),
+                            onPressed: () => context.go('/trusted-circle'),
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.brandCrimson,
                               foregroundColor: AppColors.surfaceWhite,

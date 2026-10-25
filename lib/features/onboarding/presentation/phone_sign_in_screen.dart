@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:kavach/core/design_system/tokens/app_colors.dart';
-import 'package:kavach/features/onboarding/presentation/onboarding_prototype_notice.dart';
+import 'package:kavach/features/onboarding/application/phone_auth_provider.dart';
 
-class PhoneSignInScreen extends StatelessWidget {
+class PhoneSignInScreen extends ConsumerWidget {
   const PhoneSignInScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(phoneAuthControllerProvider);
     final topInset = MediaQuery.paddingOf(context).top;
     final topSpacing = (52.0 - topInset).clamp(0.0, 52.0);
 
@@ -55,7 +57,7 @@ class PhoneSignInScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Phone verification is not configured in this build.',
+                            'We’ll text you a one-time code to verify your number.',
                             style: TextStyle(
                               fontSize: 15,
                               height: 1.35,
@@ -72,9 +74,9 @@ class PhoneSignInScreen extends StatelessWidget {
                           color: AppColors.surfaceWhite,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Padding(
+                            const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16),
                               child: SizedBox(
                                 width: 96,
@@ -90,11 +92,14 @@ class PhoneSignInScreen extends StatelessWidget {
                             Expanded(
                               child: TextField(
                                 keyboardType: TextInputType.phone,
-                                style: TextStyle(
+                                onChanged: ref
+                                    .read(phoneAuthControllerProvider.notifier)
+                                    .updatePhoneDigits,
+                                style: const TextStyle(
                                   fontSize: 17,
                                   color: AppColors.charcoal,
                                 ),
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   hintText: '98765 43210',
                                   border: InputBorder.none,
                                   isDense: true,
@@ -118,14 +123,25 @@ class PhoneSignInScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: FilledButton(
-                  onPressed: () => OnboardingPrototypeNotice.show(
-                    context: context,
-                    title: 'Phone verification unavailable',
-                    message:
-                        'Phone verification is not configured in this build. No code was sent.',
-                    continueLabel: 'Preview next screen',
-                    onContinue: () => context.go('/onboarding/code'),
-                  ),
+                  onPressed:
+                      authState.phoneDigits.length == 10 &&
+                          authState.hasConsent &&
+                          authState.stage != PhoneAuthStage.sendingCode
+                      ? () async {
+                          final requested = await ref
+                              .read(phoneAuthControllerProvider.notifier)
+                              .requestCode();
+                          if (!context.mounted || !requested) return;
+                          final verified =
+                              ref.read(phoneAuthControllerProvider).stage ==
+                              PhoneAuthStage.verified;
+                          context.go(
+                            verified
+                                ? '/onboarding/permissions'
+                                : '/onboarding/code',
+                          );
+                        }
+                      : null,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.brandCrimson,
                     foregroundColor: AppColors.surfaceWhite,
@@ -133,32 +149,69 @@ class PhoneSignInScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'Send code',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                  child: Text(
+                    authState.stage == PhoneAuthStage.sendingCode
+                        ? 'Sending…'
+                        : 'Send code',
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(40, 12, 40, 34),
-              child: InkWell(
-                onTap: () => OnboardingPrototypeNotice.show(
-                  context: context,
-                  title: 'Policies unavailable',
-                  message:
-                      'Terms and Privacy Policy documents are not configured in this build.',
-                ),
-                child: const Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: 'By continuing you agree to the '),
-                      TextSpan(text: 'Terms and Privacy Policy.'),
-                    ],
-                  ),
+            if (authState.failure != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                child: Text(
+                  phoneAuthFailureMessage(authState.failure),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: AppColors.charcoal),
+                  style: const TextStyle(color: AppColors.brandCrimson),
                 ),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Checkbox(
+                    value: authState.hasConsent,
+                    onChanged: (value) => ref
+                        .read(phoneAuthControllerProvider.notifier)
+                        .setConsent(value ?? false),
+                    activeColor: AppColors.brandCrimson,
+                  ),
+                  const Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 12),
+                      child: Text(
+                        'I agree to use my number for verification. Firebase '
+                        'processes it for authentication and abuse prevention.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.35,
+                          color: AppColors.charcoal,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(40, 12, 40, 34),
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'You can leave this screen without verifying. ',
+                    ),
+                    TextSpan(text: 'Privacy policy setup is still pending.'),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13, color: AppColors.charcoal),
               ),
             ),
           ],

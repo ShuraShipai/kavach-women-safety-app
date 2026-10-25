@@ -9,6 +9,7 @@ class PermissionRow extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.detail,
+    this.status,
     this.last = false,
     super.key,
   });
@@ -16,6 +17,7 @@ class PermissionRow extends StatelessWidget {
   final KavachIcon icon;
   final String title;
   final String detail;
+  final String? status;
   final bool last;
 
   @override
@@ -46,6 +48,16 @@ class PermissionRow extends StatelessWidget {
                 ],
               ),
             ),
+            if (status != null) ...[
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  status!,
+                  textAlign: TextAlign.end,
+                  style: AppTypography.caption,
+                ),
+              ),
+            ],
           ],
         ),
       ),

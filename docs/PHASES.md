@@ -19,6 +19,12 @@ Phases are sequential. Do not begin a later phase until its dependencies are met
 
 ## Current execution boundary
 
-Phases 1 and 2 are complete. The Flutter foundation and designed screens 1–9 (Splash through Home) are implemented as a navigable UI prototype. Onboarding now distinguishes preview navigation from unavailable authentication, permission, profile, and contact operations; PIN entry works only in memory and is not saved. Runtime widget tests remain unverified because the test harness cannot bind its loopback socket. Flutter screenshots have not been compared because CoreSimulator is unavailable, so visual/runtime acceptance remains open.
+### Firebase integration progress (2026-10-25)
 
-The next consecutive UI batch begins at screen 10, Trusted Circle. Keep backend and platform behaviors behind reviewed contracts, and do not describe prototype navigation as a successful service action.
+Firebase project `kavach-ac412` is registered for Android and iOS using the current `com.example.kavach` identifiers. FlutterFire configuration is generated and Firebase Core initializes at startup. The owner reports Phone sign-in enabled; runtime phone verification remains unverified until exercised on target devices. The default Firestore database is provisioned in Mumbai (`asia-south1`) with deletion protection. Owner-only rules compiled and deployed; no user records have been written. Profile and trusted-contact repositories use those rules. PINs are stored using Android Keystore/iOS Keychain secure storage. The Home 112 action offers a user-confirmed phone-app handoff, but device behavior is unverified. Permission handling, SOS alert delivery, and location sharing remain incomplete.
+
+The onboarding permission screen now requests while-in-use location, camera, microphone, and notification permissions through the platform permission APIs. It shows current outcomes, supports opening app settings after permanent denial, and allows onboarding to continue when optional permissions are declined. Phone and messaging handoffs do not request runtime permissions. The permission dependency and Android/iOS usage declarations are added; dependency resolution and target-device checks remain pending.
+
+Phases 1 and 2 are complete. The Flutter foundation and designed screens 1–10 are represented. Phone sign-in, profile persistence, secure PIN saving, and trusted-contact management are wired. Phone verification and Firestore app reads/writes still need device-level validation. Permissions, SOS delivery, and location remain prototypes. Runtime widget tests and target-device visual acceptance remain open.
+
+Continue remaining onboarding, permission, and SOS functionality only with reviewed contracts and honest service outcomes. Do not describe a prototype action as successful.
