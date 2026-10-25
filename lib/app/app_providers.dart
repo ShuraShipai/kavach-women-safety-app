@@ -31,6 +31,13 @@ import 'package:kavach/features/shield/infrastructure/url_cybercrime_portal_laun
 import 'package:kavach/features/shield/infrastructure/firebase_shield_media_analyzer.dart';
 import 'package:kavach/features/help/application/help_resource_provider.dart';
 import 'package:kavach/features/help/infrastructure/url_help_resource_launcher.dart';
+import 'package:kavach/features/safety_map/application/safety_map_providers.dart';
+import 'package:kavach/features/safety_map/infrastructure/firestore_safety_map_repository.dart';
+import 'package:kavach/features/safety_map/infrastructure/geolocator_device_location_gateway.dart';
+import 'package:kavach/features/safety_map/application/foreground_location_coordinator.dart';
+import 'package:kavach/features/journey/application/journey_destination_providers.dart';
+import 'package:kavach/features/journey/infrastructure/nominatim_journey_destination_geocoder.dart';
+import 'package:kavach/features/safety_map/infrastructure/overpass_nearby_help_place_source.dart';
 
 final appProviderOverrides = [
   phoneAuthRepositoryProvider.overrideWith(
@@ -83,4 +90,27 @@ final appProviderOverrides = [
     (ref) => UrlCybercrimePortalLauncher(),
   ),
   helpResourceLauncherProvider.overrideWith((ref) => UrlHelpResourceLauncher()),
+  safetyMapRepositoryProvider.overrideWith(
+    (ref) => FirestoreSafetyMapRepository(
+      FirebaseFirestore.instance,
+      FirebaseAuth.instance,
+    ),
+  ),
+  deviceLocationGatewayProvider.overrideWith(
+    (ref) => GeolocatorDeviceLocationGateway(),
+  ),
+  foregroundLocationServiceProvider.overrideWith(
+    (ref) =>
+        ForegroundLocationCoordinator(ref.watch(deviceLocationGatewayProvider)),
+  ),
+  journeyDestinationGeocoderProvider.overrideWith((ref) {
+    final geocoder = NominatimJourneyDestinationGeocoder();
+    ref.onDispose(geocoder.close);
+    return geocoder;
+  }),
+  nearbyHelpPlaceSourceProvider.overrideWith((ref) {
+    final source = OverpassNearbyHelpPlaceSource();
+    ref.onDispose(source.close);
+    return source;
+  }),
 ];

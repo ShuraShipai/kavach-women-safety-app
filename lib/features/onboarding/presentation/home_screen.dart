@@ -244,8 +244,8 @@ class HomeScreen extends ConsumerWidget {
             context,
             icon: KavachIcon.journey,
             title: 'Safe Journey',
-            subtitle: 'Journeys and location sharing',
-            onTap: () => _showUnavailable(context, 'Safe Journey'),
+            subtitle: 'Plan your journey · Optional Guardian',
+            onTap: () => context.go('/journey'),
           ),
           _featureCard(
             context,
@@ -343,7 +343,7 @@ class HomeScreen extends ConsumerWidget {
     subtitle: 'Safety Map, nearby help and reported spots',
     titleSize: 15,
     minHeight: 64,
-    onTap: () => _showUnavailable(context, 'Find Help'),
+    onTap: () => context.go('/safety-map'),
   );
 
   Widget _preparedSection(BuildContext context) => Column(

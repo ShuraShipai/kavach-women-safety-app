@@ -32,6 +32,8 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+/node_modules/
+/android/secrets.properties
 
 # Symbolication related
 app.*.symbols
@@ -46,3 +48,4 @@ app.*.map.json
 
 /functions/node_modules/
 /functions/lib/
+/android/build/

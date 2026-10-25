@@ -53,5 +53,59 @@ service cloud.firestore {
         allow delete: if ownsUserData(uid);
       }
     }
+
+    function validReport(data) {
+      return data.keys().hasOnly([
+          'location', 'category', 'timeOfDay', 'note', 'moderationStatus', 'createdAt'
+        ])
+        && data.location is latlng
+        && data.category in ['unsafe', 'poorLighting']
+        && data.timeOfDay in ['morning', 'afternoon', 'evening', 'night']
+        && (data.note == null || (data.note is string && data.note.size() <= 240))
+        && data.moderationStatus == 'pending'
+        && data.createdAt == request.time;
+    }
+
+    match /safetyReports/{reportId} {
+      function publicEligible() {
+        return resource.data.moderationStatus == 'approved'
+          && resource.data.createdAt > request.time - duration.value(30, 'd');
+      }
+      function publicApproved() {
+        return resource.data.moderationStatus == 'approved';
+      }
+      function authorCanReadPending() {
+        return request.auth != null
+          && resource.data.moderationStatus == 'pending'
+          && exists(/databases/$(database)/documents/safetyReportAuthors/$(reportId))
+          && get(/databases/$(database)/documents/safetyReportAuthors/$(reportId)).data.authorUid == request.auth.uid;
+      }
+      allow get: if publicEligible() || authorCanReadPending();
+      // Rolling time cutoffs cannot be proven from a client query constraint.
+      // The app drops expired records before rendering; direct gets remain time-limited.
+      allow list: if publicApproved();
+      allow create: if request.auth != null
+        && validReport(request.resource.data)
+        && getAfter(/databases/$(database)/documents/safetyReportAuthors/$(reportId)).data.authorUid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /safetyReportAuthors/{reportId} {
+      allow get: if request.auth != null && resource.data.authorUid == request.auth.uid;
+      allow list: if false;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['authorUid', 'createdAt'])
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/safetyReports/$(reportId)).data.moderationStatus == 'pending';
+      allow update, delete: if false;
+    }
+
+    match /verifiedHelpPoints/{pointId} {
+      allow get, list: if resource.data.type == 'policeStation'
+        && resource.data.active == true
+        && resource.data.verified == true;
+      allow create, update, delete: if false;
+    }
   }
 }
