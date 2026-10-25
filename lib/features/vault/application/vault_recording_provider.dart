@@ -14,6 +14,22 @@ final vaultRecordingControllerProvider =
       VaultRecordingController.new,
     );
 
+final startSafetyModeRecordingProvider = Provider<StartSafetyModeRecording>(
+  (ref) => StartSafetyModeRecording(
+    () => ref
+        .read(vaultRecordingControllerProvider.notifier)
+        .startAudioRecording(),
+  ),
+);
+
+class StartSafetyModeRecording {
+  const StartSafetyModeRecording(this._start);
+
+  final Future<void> Function() _start;
+
+  Future<void> call() => _start();
+}
+
 class VaultRecordingState {
   const VaultRecordingState({
     this.isRecording = false,

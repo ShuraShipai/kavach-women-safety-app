@@ -7,6 +7,7 @@ import 'package:kavach/core/design_system/tokens/app_colors.dart';
 import 'package:kavach/core/design_system/widgets/kavach_bottom_navigation.dart';
 import 'package:kavach/core/design_system/widgets/kavach_reference_icon.dart';
 import 'package:kavach/features/emergency_call/application/public/emergency_call_api.dart';
+import 'package:kavach/features/vault/application/public/vault_safety_mode_api.dart';
 
 /// Safety dashboard shown at the end of the onboarding flow.
 class HomeScreen extends ConsumerWidget {
@@ -34,11 +35,11 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     _emergencyCard(context, ref),
                     const SizedBox(height: 24),
-                    _safetySection(context),
+                    _safetySection(context, ref),
                     const SizedBox(height: 24),
                     _helpRow(context),
-                    const SizedBox(height: 24),
-                    _preparedSection(context),
+                    const SizedBox(height: 12),
+                    _guidedHelpRow(context),
                   ],
                 ),
               ),
@@ -89,7 +90,7 @@ class HomeScreen extends ConsumerWidget {
       _surfaceButton(
         label: 'Open Settings',
         icon: KavachIcon.settings,
-        onPressed: () => _showUnavailable(context, 'Settings'),
+        onPressed: () => context.push('/settings'),
         size: 44,
         radius: 12,
       ),
@@ -227,7 +228,7 @@ class HomeScreen extends ConsumerWidget {
     ),
   );
 
-  Widget _safetySection(BuildContext context) => Column(
+  Widget _safetySection(BuildContext context, WidgetRef ref) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       _sectionHeading('Your safety', trailing: 'Personal'),
@@ -266,7 +267,7 @@ class HomeScreen extends ConsumerWidget {
             icon: KavachIcon.microphone,
             title: 'Safety Mode',
             subtitle: 'Start recording in one tap',
-            onTap: () => _showUnavailable(context, 'Safety Mode'),
+            onTap: () => _startSafetyModeRecording(context, ref),
           ),
         ],
       ),
@@ -340,63 +341,40 @@ class HomeScreen extends ConsumerWidget {
     context,
     icon: KavachIcon.mapPin,
     title: 'Find Help',
-    subtitle: 'Safety Map, nearby help and reported spots',
+    subtitle: 'Helplines, cybercrime reporting and support',
     titleSize: 15,
     minHeight: 64,
-    onTap: () => _showUnavailable(context, 'Find Help'),
+    onTap: () => context.push('/help'),
   );
 
-  Widget _preparedSection(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      _sectionHeading('Be prepared'),
-      const SizedBox(height: 12),
-      Container(
-        decoration: BoxDecoration(
-          color: AppColors.surfaceWhite,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0F242326),
-              blurRadius: 2,
-              offset: Offset(0, 1),
-            ),
-            BoxShadow(
-              color: Color(0x0A242326),
-              blurRadius: 12,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            _actionRow(
-              context,
-              icon: KavachIcon.book,
-              title: 'Offline Safety Kit',
-              subtitle: 'Emergency details and chosen contacts',
-              onTap: () => _showUnavailable(context, 'Offline Safety Kit'),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 60),
-              child: Divider(
-                height: 1,
-                thickness: 1,
-                color: AppColors.coolGray,
-              ),
-            ),
-            _actionRow(
-              context,
-              icon: KavachIcon.check,
-              title: 'Readiness Checkup',
-              subtitle: 'Check contacts, location and offline details',
-              onTap: () => _showUnavailable(context, 'Readiness Checkup'),
-            ),
-          ],
-        ),
-      ),
-    ],
+  Widget _guidedHelpRow(BuildContext context) => _actionRow(
+    context,
+    icon: KavachIcon.compass,
+    title: 'Explore guided help',
+    subtitle: 'Personal safety, online abuse, documentation and support',
+    titleSize: 15,
+    minHeight: 64,
+    onTap: () => context.push('/help/guided'),
   );
+
+  Future<void> _startSafetyModeRecording(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    try {
+      await ref.read(startSafetyModeRecordingProvider).call();
+      if (context.mounted) context.push('/vault/recordings/capture');
+    } on Object {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Recording did not start. Allow microphone access and try again.',
+          ),
+        ),
+      );
+    }
+  }
 
   Widget _actionRow(
     BuildContext context, {
