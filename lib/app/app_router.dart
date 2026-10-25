@@ -22,6 +22,8 @@ import 'package:kavach/features/shield/presentation/image_check_result_screen.da
 import 'package:kavach/features/shield/presentation/message_analysis_progress_screen.dart';
 import 'package:kavach/features/shield/presentation/message_analysis_result_screen.dart';
 import 'package:kavach/features/shield/presentation/shield_screen.dart';
+import 'package:kavach/features/help/presentation/help_screen.dart';
+import 'package:kavach/features/help/presentation/guided_help_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -150,6 +152,18 @@ final appRouter = GoRouter(
               builder: (context, state) => const ImageCheckResultScreen(),
             ),
           ],
+        ),
+      ],
+    ),
+    GoRoute(
+      name: 'help',
+      path: '/help',
+      builder: (context, state) => const HelpScreen(),
+      routes: [
+        GoRoute(
+          name: 'guided-help',
+          path: 'guided',
+          builder: (context, state) => const GuidedHelpScreen(),
         ),
       ],
     ),

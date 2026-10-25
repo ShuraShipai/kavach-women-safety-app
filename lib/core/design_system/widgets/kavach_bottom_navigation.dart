@@ -122,6 +122,11 @@ class KavachBottomNavigation extends StatelessWidget {
       return;
     }
 
+    if (label == 'Help') {
+      context.go('/help');
+      return;
+    }
+
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(

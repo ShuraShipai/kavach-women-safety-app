@@ -29,6 +29,8 @@ import 'package:kavach/features/shield/application/cybercrime_portal_provider.da
 import 'package:kavach/features/shield/infrastructure/image_picker_shield_image_picker.dart';
 import 'package:kavach/features/shield/infrastructure/url_cybercrime_portal_launcher.dart';
 import 'package:kavach/features/shield/infrastructure/firebase_shield_media_analyzer.dart';
+import 'package:kavach/features/help/application/help_resource_provider.dart';
+import 'package:kavach/features/help/infrastructure/url_help_resource_launcher.dart';
 
 final appProviderOverrides = [
   phoneAuthRepositoryProvider.overrideWith(
@@ -80,4 +82,5 @@ final appProviderOverrides = [
   cybercrimePortalLauncherProvider.overrideWith(
     (ref) => UrlCybercrimePortalLauncher(),
   ),
+  helpResourceLauncherProvider.overrideWith((ref) => UrlHelpResourceLauncher()),
 ];
