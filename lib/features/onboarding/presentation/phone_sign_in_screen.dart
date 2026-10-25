@@ -135,11 +135,7 @@ class PhoneSignInScreen extends ConsumerWidget {
                           final verified =
                               ref.read(phoneAuthControllerProvider).stage ==
                               PhoneAuthStage.verified;
-                          context.go(
-                            verified
-                                ? '/onboarding/permissions'
-                                : '/onboarding/code',
-                          );
+                          context.go(verified ? '/home' : '/onboarding/code');
                         }
                       : null,
                   style: FilledButton.styleFrom(

@@ -128,7 +128,7 @@ class EnterCodeScreen extends ConsumerWidget {
                               .read(phoneAuthControllerProvider.notifier)
                               .verifyCode();
                           if (verified && context.mounted) {
-                            context.go('/onboarding/permissions');
+                            context.go('/home');
                           }
                         }
                       : null,

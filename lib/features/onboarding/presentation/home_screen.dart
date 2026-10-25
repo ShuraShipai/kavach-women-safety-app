@@ -259,8 +259,8 @@ class HomeScreen extends ConsumerWidget {
             context,
             icon: KavachIcon.fakeCall,
             title: 'Fake Call',
-            subtitle: 'Start an incoming call now',
-            onTap: () => _showUnavailable(context, 'Fake Call'),
+            subtitle: 'Customize a simulated call',
+            onTap: () => context.push('/fake-call/setup'),
           ),
           _featureCard(
             context,

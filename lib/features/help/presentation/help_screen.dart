@@ -9,6 +9,7 @@ import 'package:kavach/features/help/application/public/help_resource_api.dart';
 import 'package:kavach/features/help/presentation/action_card.dart';
 import 'package:kavach/features/help/presentation/emergency_action.dart';
 import 'package:kavach/features/help/presentation/help_limit_note.dart';
+import 'package:kavach/features/fake_call/domain/fake_call_details.dart';
 
 class HelpScreen extends ConsumerWidget {
   const HelpScreen({super.key});
@@ -65,6 +66,17 @@ class HelpScreen extends ConsumerWidget {
                   subtitle: 'Support, information and referrals',
                   icon: Icons.support_agent_outlined,
                   onTap: () => _confirmCall(context, ref, number: '181'),
+                ),
+                const SizedBox(height: 10),
+                HelpActionCard(
+                  icon: Icons.phone_in_talk_outlined,
+                  title: 'Start a simulated Fake Call',
+                  subtitle:
+                      'An on-screen call only; it does not connect to anyone',
+                  onTap: () => context.push(
+                    '/fake-call/incoming',
+                    extra: const FakeCallDetails(),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 HelpActionCard(

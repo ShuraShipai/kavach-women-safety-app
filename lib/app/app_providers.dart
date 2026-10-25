@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -38,11 +40,32 @@ import 'package:kavach/features/safety_map/application/foreground_location_coord
 import 'package:kavach/features/journey/application/journey_destination_providers.dart';
 import 'package:kavach/features/journey/infrastructure/nominatim_journey_destination_geocoder.dart';
 import 'package:kavach/features/safety_map/infrastructure/overpass_nearby_help_place_source.dart';
+import 'package:kavach/features/fake_call/application/fake_call_photo_picker_provider.dart';
+import 'package:kavach/features/fake_call/infrastructure/image_picker_fake_call_photo_picker.dart';
+import 'package:kavach/features/fake_call/application/fake_call_voice_service_provider.dart';
+import 'package:kavach/features/fake_call/infrastructure/flutter_tts_fake_call_voice_service.dart';
+import 'package:kavach/features/fake_call/application/fake_call_ringtone_service_provider.dart';
+import 'package:kavach/features/fake_call/infrastructure/audioplayers_fake_call_ringtone_service.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 final appProviderOverrides = [
   phoneAuthRepositoryProvider.overrideWith(
     (ref) => FirebasePhoneAuthRepository(FirebaseAuth.instance),
   ),
+  fakeCallPhotoPickerProvider.overrideWith(
+    (ref) => ImagePickerFakeCallPhotoPicker(ImagePicker()),
+  ),
+  fakeCallVoiceServiceProvider.overrideWith((ref) {
+    final service = FlutterTtsFakeCallVoiceService(FlutterTts());
+    ref.onDispose(() => unawaited(service.dispose()));
+    return service;
+  }),
+  fakeCallRingtoneServiceProvider.overrideWith((ref) {
+    final service = AudioplayersFakeCallRingtoneService(AudioPlayer());
+    ref.onDispose(() => unawaited(service.dispose()));
+    return service;
+  }),
   devicePermissionRepositoryProvider.overrideWith(
     (ref) => PermissionHandlerDevicePermissionRepository(),
   ),

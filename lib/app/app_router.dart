@@ -24,6 +24,14 @@ import 'package:kavach/features/shield/presentation/message_analysis_result_scre
 import 'package:kavach/features/shield/presentation/shield_screen.dart';
 import 'package:kavach/features/help/presentation/help_screen.dart';
 import 'package:kavach/features/help/presentation/guided_help_screen.dart';
+import 'package:kavach/features/safety_map/presentation/safety_map_screen.dart';
+import 'package:kavach/features/safety_map/presentation/report_spot_screen.dart';
+import 'package:kavach/features/journey/presentation/start_journey_screen.dart';
+import 'package:kavach/features/journey/presentation/journey_monitoring_screen.dart';
+import 'package:kavach/features/fake_call/presentation/fake_call_setup_screen.dart';
+import 'package:kavach/features/fake_call/presentation/fake_call_incoming_screen.dart';
+import 'package:kavach/features/fake_call/presentation/fake_call_active_screen.dart';
+import 'package:kavach/features/fake_call/presentation/fake_call_ended_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -178,6 +186,44 @@ final appRouter = GoRouter(
           builder: (context, state) => const GuidedHelpScreen(),
         ),
       ],
+    ),
+    GoRoute(
+      name: 'start-journey',
+      path: '/journey',
+      builder: (context, state) => const StartJourneyScreen(),
+    ),
+    GoRoute(
+      name: 'journey-monitoring',
+      path: '/journey/monitoring',
+      builder: (context, state) =>
+          JourneyMonitoringScreen(journey: state.extra),
+    ),
+    GoRoute(
+      name: 'fake-call-setup',
+      path: '/fake-call/setup',
+      builder: (context, state) {
+        return FakeCallSetupScreen.fromRoute(
+          state.extra,
+          caller: state.uri.queryParameters['caller'],
+          delaySeconds: int.tryParse(state.uri.queryParameters['delay'] ?? ''),
+        );
+      },
+    ),
+    GoRoute(
+      name: 'fake-call-incoming',
+      path: '/fake-call/incoming',
+      builder: (context, state) =>
+          FakeCallIncomingScreen.fromRoute(state.extra),
+    ),
+    GoRoute(
+      name: 'fake-call-active',
+      path: '/fake-call/active',
+      builder: (context, state) => FakeCallActiveScreen.fromRoute(state.extra),
+    ),
+    GoRoute(
+      name: 'fake-call-ended',
+      path: '/fake-call/ended',
+      builder: (context, state) => FakeCallEndedScreen.fromRoute(state.extra),
     ),
   ],
 );
