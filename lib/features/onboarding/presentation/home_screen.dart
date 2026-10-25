@@ -245,8 +245,8 @@ class HomeScreen extends ConsumerWidget {
             context,
             icon: KavachIcon.journey,
             title: 'Safe Journey',
-            subtitle: 'Journeys and location sharing',
-            onTap: () => _showUnavailable(context, 'Safe Journey'),
+            subtitle: 'Plan your journey · Optional Guardian',
+            onTap: () => context.go('/journey'),
           ),
           _featureCard(
             context,
@@ -344,7 +344,7 @@ class HomeScreen extends ConsumerWidget {
     subtitle: 'Helplines, cybercrime reporting and support',
     titleSize: 15,
     minHeight: 64,
-    onTap: () => context.push('/help'),
+    onTap: () => _showUnavailable(context, 'Find Help'),
   );
 
   Widget _guidedHelpRow(BuildContext context) => _actionRow(

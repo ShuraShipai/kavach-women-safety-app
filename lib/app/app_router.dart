@@ -24,7 +24,6 @@ import 'package:kavach/features/shield/presentation/message_analysis_result_scre
 import 'package:kavach/features/shield/presentation/shield_screen.dart';
 import 'package:kavach/features/help/presentation/help_screen.dart';
 import 'package:kavach/features/help/presentation/guided_help_screen.dart';
-import 'package:kavach/features/settings/presentation/settings_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -120,6 +119,18 @@ final appRouter = GoRouter(
       ],
     ),
     GoRoute(
+      name: 'safety-map',
+      path: '/safety-map',
+      builder: (context, state) => const SafetyMapScreen(),
+      routes: [
+        GoRoute(
+          name: 'report-spot',
+          path: 'report',
+          builder: (context, state) => const ReportSpotScreen(),
+        ),
+      ],
+    ),
+    GoRoute(
       name: 'shield',
       path: '/shield',
       builder: (context, state) => const ShieldScreen(),
@@ -167,11 +178,6 @@ final appRouter = GoRouter(
           builder: (context, state) => const GuidedHelpScreen(),
         ),
       ],
-    ),
-    GoRoute(
-      name: 'settings',
-      path: '/settings',
-      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );

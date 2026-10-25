@@ -15,6 +15,7 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^3.4.3
   flutter_secure_storage: ^11.2.0
+  geolocator: ^14.0.2
   go_router: ^18.0.1
   permission_handler: ^12.0.3
   path_provider: ^2.1.6
@@ -27,6 +28,9 @@ dependencies:
   cryptography_flutter: ^2.3.4
   cloud_functions: ^7.0.1
   firebase_storage: ^14.0.1
+  flutter_map: ^8.3.2
+  latlong2: ^0.9.1
+  http: ^1.5.0
 
 dev_dependencies:
   analyzer: ^12.1.0

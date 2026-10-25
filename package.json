@@ -1,0 +1,11 @@
+{
+  "name": "kavach-firestore-rule-tests",
+  "private": true,
+  "scripts": {
+    "test:firestore-rules": "firebase emulators:exec --only firestore --project demo-kavach-safety-map \"node --test test/firestore/safety_map_rules_test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase": "^11.0.0"
+  }
+}
